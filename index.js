@@ -73,27 +73,37 @@ const calculate = (operation)=>{
     const operators = operation.match(regexOperations);
     let i = 0;
     if(firstLetter === '-'){
-        i = 1;
         numbers[1] = - numbers[1];
+        operators.shift();
+        numbers.shift();
     }
+
     console.log(numbers)
+    console.log(operators)
     let primaryOperands = [];
-    let secondaryOperands = [];
     operators.forEach((elem, index)=>{
         if(elem === '/' || elem === '*'){
             primaryOperands.push([elem, index]);
         }
     });
-    primaryOperands.forEach((opr)=>{
-        console.log(singleOperation(numbers[opr[1]], opr[0], numbers[opr[1]+1] ));
-        
+    const firstMaths = prox(primaryOperands);
+    const finishing = sequentialOperation(numbers, firstMaths);
+    
 
-    })
-    operators.forEach((elem, index)=>{
-        if(elem === '+' || elem === '-'){
-            secondaryOperands.push([elem, index]);
-        }
-    }); 
+    const secondaryOperands = operators.filter((elem)=>{
+
+        return (elem === '+' || elem === '-');
+    });
+    const finishOperands = secondaryOperands.map((elem, index)=>{
+        return [elem, index];
+    });
+    const lastMaths = prox(finishOperands);
+    const result = sequentialOperation(finishing, lastMaths);
+    console.log('here')
+    console.log(lastMaths);
+    console.log(finishing);
+    console.log(result);
+    
 };
 
 const singleOperation = (number1, operator, number2)=>{
@@ -106,5 +116,38 @@ const singleOperation = (number1, operator, number2)=>{
             return number1/number2;
         case '*':
             return number1*number2;
+        default:
+            return;
     }
 }
+
+const sequentialOperation = (numbers, operationMap)=>{
+    const results = [];
+    operationMap.forEach((direct)=>{
+        const val = direct.reduce((value, opr)=>{
+            return singleOperation(value, opr[0], numbers[opr[1]+1]);
+        },numbers[direct[0][1]]);
+        results.push(val);
+    });
+    return results;
+};
+
+const prox = (vector)=>{
+    const finalVector = [];
+    let line = [];
+    for(let i = 0; i<vector.length; i++){
+        if(i==vector.length-1){
+            line.push(vector[i]);
+            finalVector.push(line);
+            line = [];
+        }else if((vector[i][1]) == (vector[i+1][1])-1){
+            line.push(vector[i]);
+        }else{
+            line.push(vector[i]);
+            finalVector.push(line);
+            line = [];
+        }
+    }
+    console.log(finalVector);
+    return finalVector;
+};
