@@ -13,7 +13,7 @@ buttons.forEach((elem)=>{
 });
 
 const info = (number)=>{
-    const regexOperations = /[+-/*]/;
+    const regexOperations = /[+-\/*]/;
     const regexNumbers = /[\.0-9]/;
 
     //Keyboard press a number or a dot.
@@ -56,7 +56,8 @@ const info = (number)=>{
 
     //Pressing '='.
     }else{
-        console.log('Time to calculate');
+        displayInput.innerHTML += displayResult.innerHTML;
+        calculate(displayInput.innerHTML);
     }
 }
 
@@ -64,3 +65,46 @@ const info = (number)=>{
 const eraseOne = (numbers)=>{
     return numbers.slice(0,-1);
 };
+
+const calculate = (operation)=>{
+    const regexOperations = /[+\-/*]/g;
+    const firstLetter = operation.slice(0, 1);
+    const numbers = operation.split(regexOperations).map((elem)=>Number(elem));
+    const operators = operation.match(regexOperations);
+    let i = 0;
+    if(firstLetter === '-'){
+        i = 1;
+        numbers[1] = - numbers[1];
+    }
+    console.log(numbers)
+    let primaryOperands = [];
+    let secondaryOperands = [];
+    operators.forEach((elem, index)=>{
+        if(elem === '/' || elem === '*'){
+            primaryOperands.push([elem, index]);
+        }
+    });
+    primaryOperands.forEach((opr)=>{
+        console.log(singleOperation(numbers[opr[1]], opr[0], numbers[opr[1]+1] ));
+        
+
+    })
+    operators.forEach((elem, index)=>{
+        if(elem === '+' || elem === '-'){
+            secondaryOperands.push([elem, index]);
+        }
+    }); 
+};
+
+const singleOperation = (number1, operator, number2)=>{
+    switch(operator){
+        case '-':
+            return number1-number2;
+        case '+':
+            return number1+number2;
+        case '/':
+            return number1/number2;
+        case '*':
+            return number1*number2;
+    }
+}
