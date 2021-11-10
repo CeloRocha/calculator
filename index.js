@@ -11,13 +11,19 @@ buttons.forEach((elem)=>{
         info(elem.value);
     }
 });
-
+let displayingResult = false;
 const info = (number)=>{
     const regexOperations = /[+-\/*]/;
     const regexNumbers = /[\.0-9]/;
 
+    
     //Keyboard press a number or a dot.
     if(regexNumbers.test(number)){
+        if(displayingResult){
+            displayInput.innerHTML = '';
+            displayResult.innerHTML = '';
+            displayingResult = false;
+        }
         const dot = /\./;
         //if a dot already exist, dot button will do nothing
         if(number === '.' && dot.test(displayResult.innerHTML)){
@@ -27,37 +33,49 @@ const info = (number)=>{
         displayResult.innerHTML += number;
 
     //Pressing a operator
-    }else if(regexOperations.test(number)){
-        //If non exist a value in display, just a minus can be put.
-        if(displayResult.innerHTML === '' && displayInput.innerHTML === ''){
-            if(number ==='-'){
-                displayInput.innerHTML += number;
-            }
-        //If a operator is being pressed and non have a new input value
-        //then changes de operator.
-        }else if(regexOperations.test(displayInput.innerHTML.slice(-1)) && displayResult.innerHTML === ''){
-            if(displayInput.innerHTML!=='-'){
-            displayInput.innerHTML = eraseOne(displayInput.innerHTML)+number;
-            }
-        }else{
-        //Pass values do up display and reset de one below
-        displayInput.innerHTML += displayResult.innerHTML + number;
-        displayResult.innerHTML = '';
-        }
-
-    //Pressing del
-    }else if(number === 'del'){
-        displayResult.innerHTML = eraseOne(displayResult.innerHTML)
-
-    //Pressing clear all;
-    }else if(number === 'ac'){
-        displayResult.innerHTML = '';
-        displayInput.innerHTML = '';
-
-    //Pressing '='.
     }else{
-        displayInput.innerHTML += displayResult.innerHTML;
-        calculate(displayInput.innerHTML);
+        if(displayingResult){
+            displayInput.innerHTML = displayResult.innerHTML;
+            displayResult.innerHTML = '';
+            displayingResult = false;
+        }
+        if(regexOperations.test(number)){
+            //If non exist a value in display, just a minus can be put.
+            if(displayResult.innerHTML === '' && displayInput.innerHTML === ''){
+                if(number ==='-'){
+                    displayInput.innerHTML += number;
+                }
+            //If a operator is being pressed and non have a new input value
+            //then changes de operator.
+            }else if(regexOperations.test(displayInput.innerHTML.slice(-1)) && displayResult.innerHTML === ''){
+                if(displayInput.innerHTML!=='-'){
+                displayInput.innerHTML = eraseOne(displayInput.innerHTML)+number;
+                }
+            }else{
+            //Pass values do up display and reset de one below
+            displayInput.innerHTML += displayResult.innerHTML + number;
+            displayResult.innerHTML = '';
+            }
+
+        //Pressing del
+        }else if(number === 'del'){
+            displayResult.innerHTML = eraseOne(displayResult.innerHTML)
+
+        //Pressing clear all;
+        }else if(number === 'ac'){
+            displayResult.innerHTML = '';
+            displayInput.innerHTML = '';
+
+        //Pressing '='.
+        }else{
+            displayInput.innerHTML += displayResult.innerHTML;
+            let result = calculate(displayInput.innerHTML);
+            if (result!='Infinity'){
+                result = +result.toFixed(4);
+            }
+            displayResult.innerHTML = String(result);
+            displayingResult = true;
+        }
     }
 }
 
@@ -72,51 +90,54 @@ const calculate = (operation)=>{
     const numbers = operation.split(regexOperations).map((elem)=>Number(elem));
     const operators = operation.match(regexOperations);
     let i = 0;
-    if(firstLetter === '-'){
-        numbers[1] = - numbers[1];
-        operators.shift();
-        numbers.shift();
-    }
-    let primaryOperands = [];
-    operators.forEach((elem, index)=>{
-        if(elem === '/' || elem === '*'){
-            primaryOperands.push([elem, index]);
+    if(operators != null){
+        if(firstLetter === '-'){
+            numbers[1] = - numbers[1];
+            operators.shift();
+            numbers.shift();
         }
-    });
-    let secondaryOperands = [];
-    operators.forEach((elem, index)=>{
-        if(elem === '+' || elem === '-'){
-            secondaryOperands.push([elem, index]);
-        }
-    });
-    console.log(primaryOperands, 'fir')
-    console.log(secondaryOperands, 'sec')
-    console.log(secondaryOperands != '')
-    let finishing = [];
-    let correctFinishing = [];
-    if(primaryOperands != ''){
-        const firstMaths = prox(primaryOperands);
-        finishing = [...sequentialOperation(numbers, firstMaths)];
-        if(secondaryOperands != ''){
-            correctFinishing = completeMissing(finishing, numbers, secondaryOperands);
-        }else{
-            correctFinishing = [...finishing];
-            console.log('Final result' , correctFinishing[0])
-            return correctFinishing[0];
-        }
-    }else{
-        correctFinishing = [...numbers];
-    }
-    if(secondaryOperands != ''){
-        console.log(correctFinishing , 'finishing');
-        const finishOperands = secondaryOperands.map((elem, index)=>{
-            return [elem[0], index];
+        let primaryOperands = [];
+        operators.forEach((elem, index)=>{
+            if(elem === '/' || elem === '*'){
+                primaryOperands.push([elem, index]);
+            }
         });
-        const lastMaths = prox(finishOperands);
-        const result = sequentialOperation(correctFinishing, lastMaths);
-    console.log(result, 'resultado')
-    console.log(finishing, 'finish')
-    }
+        let secondaryOperands = [];
+        operators.forEach((elem, index)=>{
+            if(elem === '+' || elem === '-'){
+                secondaryOperands.push([elem, index]);
+            }
+        });
+        console.log(primaryOperands, 'fir')
+        console.log(secondaryOperands, 'sec')
+        console.log(secondaryOperands != '')
+        let finishing = [];
+        let correctFinishing = [];
+        if(primaryOperands != ''){
+            const firstMaths = prox(primaryOperands);
+            finishing = [...sequentialOperation(numbers, firstMaths)];
+            if(secondaryOperands != ''){
+                correctFinishing = completeMissing(finishing, numbers, secondaryOperands);
+            }else{
+                correctFinishing = [...finishing];
+                console.log('Final result' , correctFinishing[0])
+                return correctFinishing[0];
+            }
+        }else{
+            correctFinishing = [...numbers];
+        }
+        if(secondaryOperands != ''){
+            console.log(correctFinishing , 'finishing');
+            const finishOperands = secondaryOperands.map((elem, index)=>{
+                return [elem[0], index];
+            });
+            const lastMaths = prox(finishOperands);
+            const result = sequentialOperation(correctFinishing, lastMaths);
+            return result[0];
+        }else{
+            return operation;
+        }
+    }else{return operation;}
 };
 
 const singleOperation = (number1, operator, number2)=>{
