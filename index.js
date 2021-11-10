@@ -77,33 +77,46 @@ const calculate = (operation)=>{
         operators.shift();
         numbers.shift();
     }
-
-    console.log(numbers)
-    console.log(operators)
     let primaryOperands = [];
     operators.forEach((elem, index)=>{
         if(elem === '/' || elem === '*'){
             primaryOperands.push([elem, index]);
         }
     });
-    const firstMaths = prox(primaryOperands);
-    const finishing = sequentialOperation(numbers, firstMaths);
-    
-
-    const secondaryOperands = operators.filter((elem)=>{
-
-        return (elem === '+' || elem === '-');
+    let secondaryOperands = [];
+    operators.forEach((elem, index)=>{
+        if(elem === '+' || elem === '-'){
+            secondaryOperands.push([elem, index]);
+        }
     });
-    const finishOperands = secondaryOperands.map((elem, index)=>{
-        return [elem, index];
-    });
-    const lastMaths = prox(finishOperands);
-    const result = sequentialOperation(finishing, lastMaths);
-    console.log('here')
-    console.log(lastMaths);
-    console.log(finishing);
-    console.log(result);
-    
+    console.log(primaryOperands, 'fir')
+    console.log(secondaryOperands, 'sec')
+    console.log(secondaryOperands != '')
+    let finishing = [];
+    let correctFinishing = [];
+    if(primaryOperands != ''){
+        const firstMaths = prox(primaryOperands);
+        finishing = [...sequentialOperation(numbers, firstMaths)];
+        if(secondaryOperands != ''){
+            correctFinishing = completeMissing(finishing, numbers, secondaryOperands);
+        }else{
+            correctFinishing = [...finishing];
+            console.log('Final result' , correctFinishing[0])
+            return correctFinishing[0];
+        }
+    }else{
+        correctFinishing = [...numbers];
+    }
+    if(secondaryOperands != ''){
+        console.log(correctFinishing , 'finishing');
+        const finishOperands = secondaryOperands.map((elem, index)=>{
+            return [elem[0], index];
+        });
+        const lastMaths = prox(finishOperands);
+        const result = sequentialOperation(correctFinishing, lastMaths);
+    console.log(result, 'resultado')
+    console.log(finishing, 'finish')
+    }
 };
 
 const singleOperation = (number1, operator, number2)=>{
@@ -151,3 +164,31 @@ const prox = (vector)=>{
     console.log(finalVector);
     return finalVector;
 };
+
+const completeMissing = (missing, numbers, operands)=>{
+    let completeVector = [];
+    const copyMissing = [...missing];
+    if(operands[0][1] === 0){
+        completeVector.push(numbers[0]);
+    }else{
+        completeVector.push(copyMissing.shift());
+    }
+    for(let i = 0; i<operands.length; i++){
+        if(i==operands.length-1){
+            if(operands[i][1] == ((numbers.length)-2)){
+                console.log(i)
+                completeVector.push(numbers[operands[i][1]+1])
+            }else{
+                completeVector.push(copyMissing.shift());
+            }
+        }else if((operands[i][1]) == (operands[i+1][1])-1){
+            completeVector.push(numbers[operands[i][1]+1])
+        }else{
+           completeVector.push(copyMissing.shift());
+        }
+    }
+    return completeVector;
+}
+
+//console.log('3*3+5-2+4*2+2');
+//completeMissing([ 9, 8 ], [ 3, 3, 5, 2, 4, 2, 2 ], [["+", 1],["-",2],["+",3],["+",5]]);
