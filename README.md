@@ -2,7 +2,7 @@ This project is to create a calculator with basic JS, HTML and CSS, without fram
 
 # Calculator Project - Marcelo Rocha
 
-##Important: Keyboard 'c' = AC button, Keyboard 'r' = DEL button in calculator.
+## Important: Keyboard 'c' = AC button, Keyboard 'r' = DEL button in calculator.
 
 <img src="./img/calculator.jpg" alt="Imagem do projeto" style="width: 300px, margin: auto">
 
