@@ -149,17 +149,21 @@ body{
     z-index: 1;
     width: 100vw;
     height: 100%;
-    background-color: greenyellow;
     overflow: hidden;
 }
 
 ul{
-    transform: rotateZ(-30deg);
+    transform: rotateZ(-30deg) translateY(-25%);
+    font-size: 60px;
 }
 
-li{
-    font-size: 60px;
-    animation: numberLeft 40s infinite linear;
+li:nth-child(odd){
+    animation: numberLeft 60s infinite linear;
+}
+
+li:nth-child(even){
+    animation: numberLeft 60s infinite linear;
+    animation-delay: -30s;
 }
 
 @keyframes numberLeft{

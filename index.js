@@ -285,3 +285,17 @@ const resolve = (operation)=>{
     }
     return calculate(ops);
 };
+
+const createBackground = ()=>{
+    const background = document.querySelector('ul');
+    for(let i = 0; i<20; i++){
+        let line = document.createElement('li');
+        for(let j=0; j<100; j++){
+            let inner = Math.floor(Math.random()*10);
+            line.innerHTML += inner;
+        }
+        background.appendChild(line);
+    }
+}
+
+createBackground();
