@@ -12,6 +12,26 @@ buttons.forEach((elem)=>{
     }
 });
 
+//Keyboard integration;
+document.addEventListener('keypress', (event) => {
+    const keyName = event.key;
+    const regexValid = /Enter|[0-9+\-*/\(\)=\.,cr]/i;
+    if(regexValid.test(keyName)){
+        if(keyName === 'Enter'){
+            info('=');
+        }else if(keyName === ','){
+            info('.');
+        }else if(/c/i.test(keyName)){
+            info('ac');
+        }else if(/r/i.test(keyName)){
+            info('del');
+        }else{
+            info(keyName);
+        }
+    }
+});
+
+
 // Var for knowing the display state.
 let displayingResult = false;
 //Pick the pressed button and process
@@ -94,6 +114,56 @@ const eraseOne = (numbers)=>{
     return numbers.slice(0,-1);
 };
 
+//This function receive the final operation.
+//And returns the final result
+//It divide the operation string in the prioritary parenthesis
+//And send then to calculate, until the final result is completed.
+const resolve = (operation)=>{
+    const regParenthesisAll = /\([0-9+\-\.\*\/]*\)/g;
+    const regParenthesis = /\([\.0-9+\-\*\/]*\)/;
+    let operationPart = operation.match(regParenthesisAll);
+    let ops = operation.slice(0); //Ops is the operation being processed
+
+    //First calculate all opened and ended parenthesis.
+    while(operationPart!==null){
+        //Operated is an array with all matching cases
+        let operated = operationPart.map((elem)=>{
+            //Removing the '(' and ')'
+            const noParenthesis = elem.slice(1,-1);
+            return calculate(noParenthesis);
+        });
+        for(let i=0; i<operated.length; i++){
+            ops = ops.replace(regParenthesis, operated[i]);
+        }
+        operationPart = ops.match(regParenthesisAll);
+    }
+    const openParenthesis = /\([0-9+\-\*/\.]*$/;
+    let newParenthesis = ops.match(openParenthesis);
+
+    //Now calculate all opened and non ended parenthesis.
+    while(newParenthesis!==null){
+        let noParenthesis = newParenthesis[0].slice(1);
+        let operated = calculate(noParenthesis);
+        ops = ops.replace(openParenthesis, operated);
+        newParenthesis = ops.match(openParenthesis);
+    }
+
+    const endParenthesis = /^[0-9+\-\*/\.]*\)/;
+    let endingMatch = ops.match(endParenthesis);
+
+    //Calculate all ending parenthesis with non openings.
+    while(endingMatch!==null){
+        let noParenthesis = endingMatch[0].slice(0,-1);
+        let operated = calculate(noParenthesis);
+        ops = ops.replace(endParenthesis, operated);
+        endingMatch = ops.match(endParenthesis);
+    }
+
+    //Calculate the final expression without parenthesis.
+    return calculate(ops);
+};
+
+
 // - Pick the operation in string, divide it in all operators, separating the numbers.
 // - Then it veryfy if exist operators (if it is a valid entry).
 // - If valid, verify if the first string component is a minus signal.
@@ -152,9 +222,9 @@ const calculate = (operation)=>{
             const result = sequentialOperation(correctFinishing, lastMaths);
             return result[0];
         }else{
-            return operation;
+            return Number(operation);
         }
-    }else{return operation;}
+    }else{return Number(operation);}
 };
 
 
@@ -250,46 +320,15 @@ const completeMissing = (missing, numbers, operands)=>{
     return completeVector;
 }
 
-const resolve = (operation)=>{
-    const regParenthesisAll = /\([0-9+\-\.\*\/]*\)/g;
-    const regParenthesis = /\([\.0-9+\-\*\/]*\)/;
-    let operationPart = operation.match(regParenthesisAll);
-    let ops = operation.slice(0);
-    while(operationPart!==null){
-        let operated = operationPart.map((elem)=>{
-            const noParenthesis = elem.slice(1,-1);
-            return calculate(noParenthesis);
-        });
-        for(let i=0; i<operated.length; i++){
-            ops = ops.replace(regParenthesis, operated[i]);
-        }
-        operationPart = ops.match(regParenthesisAll);
-    }
-    const openParenthesis = /\([0-9+\-\*/\.]*$/;
-    let newParenthesis = ops.match(openParenthesis);
 
-    while(newParenthesis!==null){
-        let noParenthesis = newParenthesis[0].slice(1);
-        let operated = calculate(noParenthesis);
-        ops = ops.replace(openParenthesis, operated);
-        newParenthesis = ops.match(openParenthesis);
-    }
-
-    const endParenthesis = /^[0-9+\-\*/\.]*\)/;
-    let endingMatch = ops.match(endParenthesis);
-    while(endingMatch!==null){
-        let noParenthesis = endingMatch[0].slice(0,-1);
-        let operated = calculate(noParenthesis);
-        ops = ops.replace(endParenthesis, operated);
-        endingMatch = ops.match(endParenthesis);
-    }
-    return calculate(ops);
-};
-
+//This function create random background numbers.
 const createBackground = ()=>{
     const background = document.querySelector('ul');
+    background.style.visibility = 'hidden';
+    //Create 20 lines with numbers
     for(let i = 0; i<20; i++){
         let line = document.createElement('li');
+        //Create 100 numbers with hover in one line
         for(let j=0; j<100; j++){
             let number = document.createElement('div');
             let inner = Math.floor(Math.random()*10);
@@ -298,6 +337,7 @@ const createBackground = ()=>{
         }
         background.appendChild(line);
     }
+    background.style.visibility = 'visible';
 }
 
 createBackground();
