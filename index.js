@@ -18,7 +18,7 @@ let displayingResult = false;
 const info = (number)=>{
     const regexOperations = /[+-\/*]/;
     const regexNumbers = /[\.0-9]/;
-
+    const regexParenthesis = /[\(\)]/;
     
     //Keyboard press a number or a dot.
     if(regexNumbers.test(number)){
@@ -71,6 +71,11 @@ const info = (number)=>{
             displayInput.innerHTML = '';
 
         //Pressing '='.
+        }else if(number === '('){
+            displayInput.innerHTML += number;
+        }else if(number === ')'){
+            displayInput.innerHTML += displayResult.innerHTML+number;
+            displayResult.innerHTML = '';
         }else{
             //Put the last number in the account, calculate and display result;
             displayInput.innerHTML += displayResult.innerHTML;
