@@ -13,7 +13,7 @@ body{
 .container{
     position: relative;
     margin: auto;
-    width: 80%;
+    width: fit-content;
     z-index: 2;
 }
 
@@ -155,6 +155,21 @@ body{
 ul{
     transform: rotateZ(-30deg) translateY(-25%);
     font-size: 60px;
+}
+
+li{
+    display: flex;
+}
+
+li > div{
+    background: transparent;
+    opacity: 0.2;
+    transition: 2s ease;
+}
+
+li > div:hover{
+    transition: 0s;
+    color: royalblue;
 }
 
 li:nth-child(odd){

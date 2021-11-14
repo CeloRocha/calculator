@@ -291,8 +291,10 @@ const createBackground = ()=>{
     for(let i = 0; i<20; i++){
         let line = document.createElement('li');
         for(let j=0; j<100; j++){
+            let number = document.createElement('div');
             let inner = Math.floor(Math.random()*10);
-            line.innerHTML += inner;
+            number.innerHTML = inner;
+            line.appendChild(number);
         }
         background.appendChild(line);
     }
