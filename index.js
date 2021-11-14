@@ -74,7 +74,7 @@ const info = (number)=>{
         }else{
             //Put the last number in the account, calculate and display result;
             displayInput.innerHTML += displayResult.innerHTML;
-            let result = calculate(displayInput.innerHTML);
+            let result = resolve(displayInput.innerHTML);
             if (result!='Infinity'){ //If value is finite, round it if necessary;
                 result = +result.toFixed(4);
             }
@@ -244,3 +244,39 @@ const completeMissing = (missing, numbers, operands)=>{
     }
     return completeVector;
 }
+
+const resolve = (operation)=>{
+    const regParenthesisAll = /\([0-9+\-\.\*\/]*\)/g;
+    const regParenthesis = /\([\.0-9+\-\*\/]*\)/;
+    let operationPart = operation.match(regParenthesisAll);
+    let ops = operation.slice(0);
+    while(operationPart!==null){
+        let operated = operationPart.map((elem)=>{
+            const noParenthesis = elem.slice(1,-1);
+            return calculate(noParenthesis);
+        });
+        for(let i=0; i<operated.length; i++){
+            ops = ops.replace(regParenthesis, operated[i]);
+        }
+        operationPart = ops.match(regParenthesisAll);
+    }
+    const openParenthesis = /\([0-9+\-\*/\.]*$/;
+    let newParenthesis = ops.match(openParenthesis);
+
+    while(newParenthesis!==null){
+        let noParenthesis = newParenthesis[0].slice(1);
+        let operated = calculate(noParenthesis);
+        ops = ops.replace(openParenthesis, operated);
+        newParenthesis = ops.match(openParenthesis);
+    }
+
+    const endParenthesis = /^[0-9+\-\*/\.]*\)/;
+    let endingMatch = ops.match(endParenthesis);
+    while(endingMatch!==null){
+        let noParenthesis = endingMatch[0].slice(0,-1);
+        let operated = calculate(noParenthesis);
+        ops = ops.replace(endParenthesis, operated);
+        endingMatch = ops.match(endParenthesis);
+    }
+    return calculate(ops);
+};
